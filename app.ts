@@ -5,6 +5,7 @@ import * as exphbs from 'express-handlebars';
 
 
 const app = express();
+app.use(express.static(path.join(__dirname, 'public')));
 const upload = multer({ storage: multer.memoryStorage() });
 const hbs = exphbs.create({ extname: '.hbs' });
 
