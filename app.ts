@@ -1,6 +1,5 @@
 import express from 'express';
 import multer from 'multer';
-import { Readable } from 'stream';
 import path from 'path';
 import * as exphbs from 'express-handlebars';
 import ffmpeg from 'fluent-ffmpeg';
@@ -45,8 +44,16 @@ app.post('/convert', upload.single('movFile'), (req, res) => {
         '-err_detect ignore_err'
       ])
       .inputFormat('mov')
-      .videoCodec('libx264')
-      .outputOptions(['-crf', '23', '-preset', 'veryfast', '-c:a', 'aac', '-b:a', '128k'])
+      .videoCodec('libx264') // Efficient video codec
+      .size('1280x720') // Reduce video resolution if necessary
+      .outputOptions([
+        '-crf', '23',
+        '-preset', 'veryfast',
+        '-c:a', 'aac',
+        '-b:a', '128k',
+        '-maxrate', '1000k', // Limit video bitrate
+        '-bufsize', '2000k'
+      ])
       .output(outputPath)
       .on('start', () => {
         console.log('Starting MOV to MP4 conversion');
@@ -88,3 +95,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
+
