@@ -4,17 +4,29 @@ import { Readable } from 'stream';
 import path from 'path';
 import * as exphbs from 'express-handlebars';
 import ffmpeg from 'fluent-ffmpeg';
-
+import fs from 'fs';
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
-// const upload = multer({ storage: multer.memoryStorage() });
 const upload = multer({ dest: path.join(__dirname, 'public', 'uploads') });
 const hbs = exphbs.create({ extname: '.hbs' });
 
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
+
+// Ensure directories exist
+const ensureDirectory = (dir: string) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
+const convertedDir = path.join(__dirname, 'public', 'converted');
+
+ensureDirectory(uploadsDir);
+ensureDirectory(convertedDir);
 
 app.get('/', (req, res) => {
   res.render('upload');
@@ -45,6 +57,14 @@ app.post('/convert', upload.single('movFile'), (req, res) => {
       .on('end', () => {
         console.log('Conversion complete');
         res.download(outputPath, (err) => {
+          // Delete input and output files after conversion
+          fs.unlink(inputPath, (err) => {
+            if (err) console.error('Error deleting input file:', err);
+          });
+          fs.unlink(outputPath, (err) => {
+            if (err) console.error('Error deleting output file:', err);
+          });
+
           if (err) {
             console.error('Error sending the file:', err);
             res.status(500).send('An error occurred while sending the file');
@@ -62,7 +82,6 @@ app.post('/convert', upload.single('movFile'), (req, res) => {
     res.status(400).send('Invalid file format. Please upload a MOV file.');
   }
 });
-
 
 const PORT = process.env.PORT || 3000;
 
