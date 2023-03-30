@@ -1,44 +1,4 @@
-<div class="header">
-  <h1>Online File Converter</h1>
-  <p>Convert your files to any format</p>
-  <nav>
-    <a href="#">Home</a>
-    <a href="#">Features</a>
-    <a href="#">Pricing</a>
-    <a href="#">Support</a>
-  </nav>
-</div>
-<div class="content">
-  <h2>Select files to convert</h2>
-  <form action="/convert" method="post" enctype="multipart/form-data">
- 
-      <div class="file-upload">
-        <div class="file-upload-dragdrop">
-          <input type="file" name="movFile" id="movFile" class="file-upload-input" accept=".mov">
-          <label for="movFile" class="file-upload-label">
-            <span>Drag &amp; drop</span> or <span>browse</span> to choose a MOV file
-          </label>
-        </div>
-      </div>
-
-      <label for="movFile" class="file-upload-label">Choose a MOV file</label>
-     <input type="file" name="movFile" id="movFile" class="file-upload-input" accept=".mov">
-    </div>
-    <div class="file-format">
-      <label for="outputFormat">Output format:</label>
-      <select id="outputFormat" name="outputFormat" class="output-format">
-        <option value="mp4" selected>MP4</option>
-      </select>
-    </div>
-    <button type="submit" class="submit-button">Convert</button>
-  </form>
-  <div class="features">
-    <h2>Features</h2>
-    <ul>
-      <li>Fast and easy file conversion</li>
-      <li>Support for many file formats</li>
-      <li>High-quality output</li>
-    </ul>
-  </div>
-</div>
-
+<form action="/convert" method="post" enctype="multipart/form-data">
+  <input type="file" name="movFile" accept=".mov">
+  <button type="submit">Convert to MP4</button>
+</form>
