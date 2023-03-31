@@ -1,4 +1,45 @@
-<form action="/convert" method="post" enctype="multipart/form-data">
-  <input type="file" name="movFile" accept=".mov">
-  <button type="submit">Convert to MP4</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload</title>
+</head>
+<body>
+    <form action="/convert" method="post" enctype="multipart/form-data">
+        <input type="file" name="movFile" accept="video/quicktime">
+        <button type="submit">Convert</button>
+    </form>
+    <p>Conversion progress: <span id="progress">0</span>%</p>
+
+    <!-- Use socket.io-client library from a CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        const progressElement = document.getElementById('progress');
+
+        socket.on('connect', () => {
+          fetch('/session')
+            .then((response) => response.text())
+            .then((sessionId) => {
+              socket.emit('joinRoom', sessionId);
+            });
+        });
+
+        socket.on('connect', () => {
+          console.log('Connected to server');
+        });
+
+        socket.on('disconnect', () => {
+          console.log('Disconnected from server');
+        });
+
+        socket.on('conversionProgress', (percent) => {
+            console.log(percent)
+
+            progressElement.textContent = percent;
+        });
+    </script>
+</body>
+</html>

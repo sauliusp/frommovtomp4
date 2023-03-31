@@ -4,11 +4,19 @@ import path from 'path';
 import * as exphbs from 'express-handlebars';
 import ffmpeg from 'fluent-ffmpeg';
 import fs from 'fs';
+import { Server } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
+import session from 'express-session';
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
+
 const upload = multer({ dest: path.join(__dirname, 'public', 'uploads') });
 const hbs = exphbs.create({ extname: '.hbs' });
+
+// Create HTTP server and Socket.IO server
+const httpServer = new Server(app);
+const io = new SocketIOServer(httpServer);  
 
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
@@ -28,7 +36,34 @@ ensureDirectory(uploadsDir);
 ensureDirectory(convertedDir);
 
 app.get('/', (req, res) => {
-  res.render('upload');
+  const room = Date.now().toString();
+  res.locals.room = room;
+  res.render('upload', { room });
+});
+
+// Add session middleware
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+}));
+
+// Join the client to a room with their session ID
+io.on('connection', (socket) => {
+  console.log(`Client connected: ${socket.id}`);
+
+  socket.on('disconnect', () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+
+  socket.on('joinRoom', (roomId) => {
+    socket.join(roomId);
+  });
+});
+
+app.get('/session', (req, res) => {
+  res.send(req.sessionID);
 });
 
 app.post('/convert', upload.single('movFile'), (req, res) => {
@@ -60,9 +95,12 @@ app.post('/convert', upload.single('movFile'), (req, res) => {
       })
       .on('progress', (progress) => {
         console.log(`Conversion progress: ${progress.percent.toFixed(2)}% done`);
+
+        io.to(req.sessionID).emit('conversionProgress', progress.percent.toFixed(2));
       })
       .on('end', () => {
         console.log('Conversion complete');
+
         res.download(outputPath, (err) => {
           // Delete input and output files after conversion
           fs.unlink(inputPath, (err) => {
@@ -92,7 +130,7 @@ app.post('/convert', upload.single('movFile'), (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
 
