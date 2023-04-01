@@ -1,70 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload</title>
-</head>
-<body>
-    <form id="uploadForm">
-        <input type="file" name="movFile" id="movFile" accept="video/quicktime">
-        <button type="submit">Convert</button>
-    </form>
-    <p>Conversion progress: <span id="progress">0</span>%</p>
+<form id="uploadForm">
+    <input type="file" name="movFile" id="movFile" accept="video/quicktime">
+    <button type="submit">Convert</button>
+</form>
+<p>Conversion progress: <span id="progress">0</span>%</p>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
-    <script>
-        const socket = io();
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
+<script>
+    const socket = io();
 
-        const progressElement = document.getElementById('progress');
-        const uploadForm = document.getElementById('uploadForm');
-        const movFileInput = document.getElementById('movFile');
+    const progressElement = document.getElementById('progress');
+    const uploadForm = document.getElementById('uploadForm');
+    const movFileInput = document.getElementById('movFile');
 
-        socket.on('connect', () => {
-          fetch('/session')
-            .then((response) => response.text())
-            .then((sessionId) => {
-              socket.emit('joinRoom', sessionId);
-            });
+    socket.on('connect', () => {
+      fetch('/session')
+        .then((response) => response.text())
+        .then((sessionId) => {
+          socket.emit('joinRoom', sessionId);
         });
+    });
 
-        socket.on('connect', () => {
-          console.log('Connected to server');
+    socket.on('connect', () => {
+      console.log('Connected to server');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server');
+    });
+
+    socket.on('conversionProgress', (percent) => {
+        console.log(percent);
+        progressElement.textContent = percent;
+    });
+
+    uploadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append('movFile', movFileInput.files[0]);
+
+        fetch('/convert', {
+            method: 'POST',
+            body: formData,
+        })
+        .then((response) => response.blob())
+        .then((blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'converted.mp4');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        })
+        .catch((error) => {
+            console.error('Error uploading the file:', error);
         });
-
-        socket.on('disconnect', () => {
-          console.log('Disconnected from server');
-        });
-
-        socket.on('conversionProgress', (percent) => {
-            console.log(percent);
-            progressElement.textContent = percent;
-        });
-
-        uploadForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const formData = new FormData();
-            formData.append('movFile', movFileInput.files[0]);
-
-            fetch('/convert', {
-                method: 'POST',
-                body: formData,
-            })
-            .then((response) => response.blob())
-            .then((blob) => {
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'converted.mp4');
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-            })
-            .catch((error) => {
-                console.error('Error uploading the file:', error);
-            });
-        });
-    </script>
-</body>
-</html>
+    });
+</script>
