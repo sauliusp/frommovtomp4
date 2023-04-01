@@ -96,7 +96,7 @@ app.post('/convert', upload.single('movFile'), (req, res) => {
       .on('progress', (progress) => {
         console.log(`Conversion progress: ${progress.percent.toFixed(2)}% done`);
 
-        io.to(req.sessionID).emit('conversionProgress', progress.percent.toFixed(2));
+        io.to(req.sessionID).emit('conversionProgress', Math.floor(progress.percent));
       })
       .on('end', () => {
         console.log('Conversion complete');
