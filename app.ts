@@ -100,8 +100,12 @@ app.post('/convert', upload.single('movFile'), (req, res) => {
       })
       .on('end', () => {
         console.log('Conversion complete');
+        res.download(outputPath, 'converted.mp4', (err) => {
+          if (err) {
+            console.error('Error downloading the file:', err);
+            res.status(500).send('An error occurred while downloading the file');
+          }
 
-        res.download(outputPath, (err) => {
           // Delete input and output files after conversion
           fs.unlink(inputPath, (err) => {
             if (err) console.error('Error deleting input file:', err);
@@ -109,11 +113,6 @@ app.post('/convert', upload.single('movFile'), (req, res) => {
           fs.unlink(outputPath, (err) => {
             if (err) console.error('Error deleting output file:', err);
           });
-
-          if (err) {
-            console.error('Error sending the file:', err);
-            res.status(500).send('An error occurred while sending the file');
-          }
         });
       })
       .on('error', (err, stdout, stderr) => {

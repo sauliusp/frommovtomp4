@@ -6,18 +6,19 @@
     <title>Upload</title>
 </head>
 <body>
-    <form action="/convert" method="post" enctype="multipart/form-data">
-        <input type="file" name="movFile" accept="video/quicktime">
+    <form id="uploadForm">
+        <input type="file" name="movFile" id="movFile" accept="video/quicktime">
         <button type="submit">Convert</button>
     </form>
     <p>Conversion progress: <span id="progress">0</span>%</p>
 
-    <!-- Use socket.io-client library from a CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
     <script>
         const socket = io();
 
         const progressElement = document.getElementById('progress');
+        const uploadForm = document.getElementById('uploadForm');
+        const movFileInput = document.getElementById('movFile');
 
         socket.on('connect', () => {
           fetch('/session')
@@ -36,9 +37,33 @@
         });
 
         socket.on('conversionProgress', (percent) => {
-            console.log(percent)
-
+            console.log(percent);
             progressElement.textContent = percent;
+        });
+
+        uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('movFile', movFileInput.files[0]);
+
+            fetch('/convert', {
+                method: 'POST',
+                body: formData,
+            })
+            .then((response) => response.blob())
+            .then((blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'converted.mp4');
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            })
+            .catch((error) => {
+                console.error('Error uploading the file:', error);
+            });
         });
     </script>
 </body>
