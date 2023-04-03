@@ -1,16 +1,29 @@
-<form id="uploadForm">
-    <input type="file" name="movFile" id="movFile" accept="video/quicktime">
-    <button type="submit">Convert</button>
-</form>
-<p>Conversion progress: <span id="progress">0</span>%</p>
+<header class="header-section">
+    <h1 class="header-title">MOV to MP4 Converter</h1>
+  </header>
+  <section class="converter-section">
+    <form class="converter-form" action="/convert" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="movFile" class="file-label">Choose a MOV file to convert:</label>
+        <input type="file" class="form-control-file" name="movFile" id="movFile" accept="video/quicktime">
+      </div>
+      <button type="submit" class="btn btn-primary">Convert</button>
+    </form>
+    <div class="progress-container">
+      <p>Conversion progress:</p>
+      <div class="progress">
+        <div id="progress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
+  </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
 <script>
     const socket = io();
 
     const progressElement = document.getElementById('progress');
-    const uploadForm = document.getElementById('uploadForm');
-    const movFileInput = document.getElementById('movFile');
+    const uploadForm = document.querySelector('.converter-form');
+    const movFileInput = document.querySelector('.form-control-file');
 
     socket.on('connect', () => {
       fetch('/session')
@@ -30,7 +43,7 @@
 
     socket.on('conversionProgress', (percent) => {
         console.log(percent);
-        progressElement.textContent = percent;
+        progressElement.style.width = percent + '%';
     });
 
     uploadForm.addEventListener('submit', (e) => {
