@@ -3,12 +3,16 @@
   </header>
   <section class="converter-section">
     <form class="converter-form" action="/convert" method="post" enctype="multipart/form-data">
-      <div class="form-group">
-        <label for="movFile" class="file-label">Choose a MOV file to convert:</label>
-        <input type="file" class="form-control-file" name="movFile" id="movFile" accept="video/quicktime">
+    <div class="form-group">
+      <label for="movFile" class="file-label">Choose a MOV file to convert:</label>
+      <input type="file" class="form-control-file" name="movFile" id="movFile" accept="video/quicktime">
+      <div class="drag-drop-area" onclick="document.getElementById('movFile').click();">
+        <p>Drag & Drop your MOV file here</p>
+        <p>or click to choose a file</p>
       </div>
-      <button type="submit" class="btn btn-primary">Convert</button>
-    </form>
+    </div>
+    <button type="submit" class="btn btn-primary">Convert</button>
+  </form>
     <div class="progress-container">
       <p>Conversion progress:</p>
       <div class="progress">
@@ -70,4 +74,43 @@
             console.error('Error uploading the file:', error);
         });
     });
+
+    // Disable the convert button initially
+    const convertButton = document.querySelector('.btn');
+    convertButton.disabled = true;
+
+    // Listen for changes on the file input
+    const fileInput = document.getElementById('movFile');
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+
+      if (file) {
+        // Enable the convert button if a file is selected
+        convertButton.disabled = false;
+
+        // Update the drag-drop area text with the file name
+        const dragDropArea = document.querySelector('.drag-drop-area');
+        dragDropArea.innerHTML = `<p>${file.name}</p>`;
+      } else {
+        // Disable the convert button if no file is selected
+        convertButton.disabled = true;
+
+        // Reset the drag-drop area text
+        const dragDropArea = document.querySelector('.drag-drop-area');
+        dragDropArea.innerHTML = `
+          <p>Drag & Drop your MOV file here</p>
+          <p>or click to choose a file</p>
+        `;
+      }
+    });
+
+    // Trigger the file input when the drag-drop area is clicked
+    const dragDropArea = document.querySelector('.drag-drop-area');
+    dragDropArea.addEventListener('click', () => {
+      // Check if the event target is the file input itself
+        if (event.target !== fileInput) {
+          fileInput.click();
+        }
+    });
+
 </script>
