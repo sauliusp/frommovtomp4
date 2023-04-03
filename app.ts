@@ -6,7 +6,6 @@ import ffmpeg from 'fluent-ffmpeg';
 import fs from 'fs';
 import { Server } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import session from 'express-session';
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
@@ -35,21 +34,10 @@ const convertedDir = path.join(__dirname, 'public', 'converted');
 ensureDirectory(uploadsDir);
 ensureDirectory(convertedDir);
 
-app.get('/', (req, res) => {
-  const room = Date.now().toString();
-  res.locals.room = room;
-  res.render('upload', { room });
+app.get('/', (_, res) => {
+  res.render('upload');
 });
 
-// Add session middleware
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}));
-
-// Join the client to a room with their session ID
 io.on('connection', (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
@@ -60,10 +48,6 @@ io.on('connection', (socket) => {
   socket.on('joinRoom', (roomId) => {
     socket.join(roomId);
   });
-});
-
-app.get('/session', (req, res) => {
-  res.send(req.sessionID);
 });
 
 app.post('/convert', upload.single('movFile'), (req, res) => {
@@ -96,7 +80,7 @@ app.post('/convert', upload.single('movFile'), (req, res) => {
       .on('progress', (progress) => {
         console.log(`Conversion progress: ${progress.percent.toFixed(2)}% done`);
 
-        io.to(req.sessionID).emit('conversionProgress', Math.floor(progress.percent));
+        io.to(req.query.socketId as string).emit('conversionProgress', Math.floor(progress.percent));
       })
       .on('end', () => {
         console.log('Conversion complete');

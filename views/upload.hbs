@@ -30,14 +30,6 @@
     const movFileInput = document.querySelector('.form-control-file');
 
     socket.on('connect', () => {
-      fetch('/session')
-        .then((response) => response.text())
-        .then((sessionId) => {
-          socket.emit('joinRoom', sessionId);
-        });
-    });
-
-    socket.on('connect', () => {
       console.log('Connected to server');
     });
 
@@ -56,9 +48,10 @@
         const formData = new FormData();
         formData.append('movFile', movFileInput.files[0]);
 
-        fetch('/convert', {
-            method: 'POST',
-            body: formData,
+
+        fetch(`/convert?socketId=${socket.id}`, {
+          method: 'POST',
+          body: formData,
         })
         .then((response) => response.blob())
         .then((blob) => {
