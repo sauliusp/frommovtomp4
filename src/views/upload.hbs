@@ -6,7 +6,7 @@
     <div class="form-group">
       <label for="movFile" class="file-label">Choose a MOV file to convert:</label>
       <input type="file" class="form-control-file" name="movFile" id="movFile" accept="video/quicktime">
-      <div class="drag-drop-area" onclick="document.getElementById('movFile').click();">
+      <div class="drag-drop-area">
         <p>Drag & Drop your MOV file here</p>
         <p>or click to choose a file</p>
       </div>
@@ -99,7 +99,8 @@
 
     // Trigger the file input when the drag-drop area is clicked
     const dragDropArea = document.querySelector('.drag-drop-area');
-    dragDropArea.addEventListener('click', () => {
+    dragDropArea.addEventListener('click', (event) => {
+    
       // Check if the event target is the file input itself
         if (event.target !== fileInput) {
           fileInput.click();

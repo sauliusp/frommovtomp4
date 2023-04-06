@@ -8,9 +8,9 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "start": "npm run build && node app.js",
-    "start-ts": "ts-node app.ts",
-    "dev": "nodemon --exec ts-node --ext ts,css,hbs -- app.ts",
+    "start": "npm run build && node src/app.js",
+    "start-ts": "npm run build && ts-node src/app.ts",
+    "dev": "nodemon --exec ts-node --ext ts,css,hbs -- src/app.ts",
     "build": "tsc"
   },
   "dependencies": {
