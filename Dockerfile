@@ -18,17 +18,18 @@ RUN npm ci
 # Copy the rest of the application files
 COPY . .
 
-# Create the uploads directory
-RUN mkdir -p /app/build/public/uploads
-
-# Create the converted directory
-RUN mkdir -p /app/build/public/converted
-
 # Build TypeScript files
 RUN npm run build
+
+# Set the working directory to build folder
+WORKDIR /usr/src/app/build
+
+# Create the uploads & converted directories
+RUN mkdir -p public/uploads
+RUN mkdir -p public/converted
 
 # Expose the port your app will run on
 EXPOSE 10000
 
 # Start the application
-CMD [ "node", "build/app.js" ]
+CMD [ "npm", "start" ]
