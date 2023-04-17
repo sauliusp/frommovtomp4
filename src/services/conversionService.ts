@@ -4,8 +4,8 @@ import fs from 'fs';
 import { Request, Response } from 'express';
 import { ensureDirectory } from '../utils/directoryUtils';
 
-const uploadsDir = path.join(__dirname, '..', 'public', 'uploads');
-const convertedDir = path.join(__dirname, '..', 'public', 'converted');
+const uploadsDir = path.join(__dirname, '..', '..', 'public', 'uploads');
+const convertedDir = path.join(__dirname, '..', '..', 'public', 'converted');
 
 ensureDirectory(uploadsDir);
 ensureDirectory(convertedDir);
@@ -13,7 +13,7 @@ ensureDirectory(convertedDir);
 export function convertMovToMp4(req: Request, res: Response) {
   if (req.file && req.file.mimetype === 'video/quicktime') {
     const inputPath = req.file.path;
-    const outputPath = path.join(__dirname, '..', 'public', 'converted', `${Date.now()}.mp4`);
+    const outputPath = path.join(__dirname, '..', '..', 'public', 'converted', `${Date.now()}.mp4`);
 
     ffmpeg()
       .input(inputPath)
