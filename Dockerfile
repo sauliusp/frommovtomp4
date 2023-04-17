@@ -19,10 +19,10 @@ RUN npm ci
 COPY . .
 
 # Create the uploads directory
-RUN mkdir -p /usr/src/app/public/uploads
+RUN mkdir -p /app/build/public/uploads
 
 # Create the converted directory
-RUN mkdir -p /usr/src/app/public/converted
+RUN mkdir -p /app/build/public/converted
 
 # Build TypeScript files
 RUN npm run build
