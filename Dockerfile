@@ -25,4 +25,4 @@ RUN npm run build
 EXPOSE 10000
 
 # Start the application
-CMD [ "npm", "start" ]
+CMD [ "node", "build/app.js" ]
